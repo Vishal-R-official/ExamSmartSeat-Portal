@@ -1,0 +1,259 @@
+.student-portal-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100%;
+    padding-top: 2rem;
+}
+
+.portal-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 2.5rem;
+}
+
+.search-input-wrapper {
+    position: relative;
+    margin-top: 2rem;
+}
+
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.search-input-wrapper input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    padding: 1.25rem 1rem 1.25rem 3rem;
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.search-input-wrapper input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.seat-found-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.seat-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.detail-box {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.col-span-2 {
+    grid-column: span 2;
+}
+
+.highlight-box {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(59, 130, 246, 0.1));
+    border-color: rgba(0, 229, 255, 0.2);
+}
+
+.box-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.box-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.box-value.massive {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Simulated QR Code CSS */
+.qr-simulation {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    display: inline-block;
+}
+
+.qr-box {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    background: white;
+    background-image:
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000),
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000);
+    background-size: 10px 10px;
+    background-position: 0 0, 5px 5px;
+    border: 10px solid white;
+}
+
+.qr-pattern {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 4px solid #000;
+    background: white;
+}
+
+.qr-pattern.p1 {
+    top: 0;
+    left: 0;
+}
+
+.qr-pattern.p2 {
+    top: 0;
+    right: 0;
+}
+
+.qr-pattern.p3 {
+    bottom: 0;
+    left: 0;
+}
+
+.qr-pattern::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 14px;
+    height: 14px;
+    background: #000;
+}
+
+/* Portal Header */
+.portal-header {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.portal-logo-ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(0, 229, 255, 0.08);
+    border: 2px solid rgba(0, 229, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+/* Student Avatar */
+.student-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #000;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+}
+
+/* Dept pill */
+.dept-pill {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+}
+
+/* Seat Highlight Row */
+.seat-highlight-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 0;
+}
+
+.seat-highlight-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+}
+
+.hall-box {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.12), rgba(59, 130, 246, 0.1));
+    border-color: rgba(0, 229, 255, 0.25);
+}
+
+.seat-box {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.08));
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.box-icon { color: var(--text-muted); }
+.hall-box .box-icon { color: var(--accent-primary); }
+.seat-box .box-icon { color: var(--status-success); }
+
+.box-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+/* Portal footer */
+.portal-footer-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Portal results border */
+.portal-results {
+    border-top: 1px solid var(--border-color);
+}

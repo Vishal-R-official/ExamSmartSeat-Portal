@@ -1,0 +1,93 @@
+.halls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.hall-card {
+    padding: 1.25rem;
+    transition: transform var(--transition-fast);
+}
+.hall-card:hover { transform: translateY(-2px); }
+.hall-card.unavailable { opacity: 0.55; }
+
+.hall-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.hall-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hall-number {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.hall-block {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+.status-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-full);
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+}
+.status-toggle.available {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--status-success);
+}
+.status-toggle.unavailable {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-danger);
+}
+
+.hall-details {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.hall-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.detail-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.detail-value.highlight { color: var(--accent-primary); }
+
+.add-hall-form { padding: 1.25rem; }

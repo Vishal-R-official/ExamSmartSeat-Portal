@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap');
+
+.about-page {
+  --c-bg: #0a0f1c; /* Deep dark blue consistent with theme */
+  --c-text: #e2e8f0;
+  --c-primary: #3b82f6; /* Accent blue */
+  --c-secondary: #94a3b8;
+  
+  background: var(--c-bg);
+  background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.05), transparent 25%),
+                    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.05), transparent 25%);
+  color: var(--c-text);
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+}
+
+.about-back-btn {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  z-index: 100;
+}
+
+.about-hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 2rem;
+  position: relative;
+}
+
+.about-hero-title {
+  font-family: "Climate Crisis", sans-serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--sp-border);
+  position: relative;
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 2rem;
+}
+
+.about-hero-title::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #fff;
+  -webkit-text-stroke: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  transition: clip-path 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-hero-subtitle {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: var(--c-secondary);
+  max-width: 600px;
+  font-weight: 300;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 1s ease forwards 0.5s;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: bounce 2s infinite;
+  color: var(--c-secondary);
+}
+
+/* Sections */
+.about-sections {
+  padding: 4rem 2rem 8rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15vh; /* HUGE vertical gap for scrolling narrative */
+}
+
+.kin-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  /* Instead of transition, we use direct timeline bindings! */
+}
+
+@media (min-width: 768px) {
+  .kin-section {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 4rem;
+  }
+  
+  .kin-section:nth-child(even) {
+    /* Alternate layouts */
+    direction: rtl; 
+  }
+  .kin-section:nth-child(even) > * {
+    direction: ltr; /* keep text correct */
+  }
+}
+
+.kin-number {
+  font-family: "Climate Crisis", sans-serif;
+  font-size: clamp(4rem, 15vw, 15rem);
+  color: rgba(255, 255, 255, 0.03);
+  line-height: 0.8;
+  position: absolute;
+  top: -2rem;
+  left: -2rem;
+  z-index: 0;
+  pointer-events: none;
+  
+  /* Reverse Parallax: Moves DOWN as we scroll DOWN */
+  transform: translateY(calc(var(--scroll-offset, 0) * 400px));
+}
+
+.kin-content {
+  position: relative;
+  z-index: 10;
+  
+  /* Scroll Timeline Animations */
+  opacity: calc(var(--scroll-center, 0) * 1.5); /* 1.5 keeps it opaque longer in the center */
+  
+  /* Upward Parallax: Moves UP faster than normal scroll */
+  transform: translateY(calc(var(--scroll-offset, 0) * -150px));
+}
+
+.kin-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Kinetic folding text animation for titles */
+.kin-anim-char {
+  display: inline-block;
+  color: var(--c-text);
+  transform-origin: 50% 100%;
+  
+  /* Scroll mapped unfolding */
+  /* Starts scaling up sequentially as it approaches the viewport center */
+  --reveal-t: calc( (var(--scroll-center, 0) * 2) - (var(--char-idx) * 0.05) );
+  
+  transform: scaleY(clamp(0, var(--reveal-t), 1));
+  opacity: clamp(0.1, var(--reveal-t), 1);
+}
+
+.kin-desc {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: var(--c-secondary);
+  font-weight: 300;
+  display: inline;
+}
+
+/* Kinetic words scrub for descriptions */
+.kin-anim-word {
+  /* Words glow brighter sequentially dynamically mapped to scroll depth */
+  --highlight-p: calc( (var(--scroll-center, 0) * 1.5) - var(--word-p) );
+  opacity: clamp(0.3, var(--highlight-p) + 0.3, 1);
+  color: var(--c-secondary);
+  transition: color 0.1s linear;
+}
+
+/* Brighten immediately when highly visible */
+.kin-section[style*="--scroll-center: 0.9"] .kin-anim-word,
+.kin-section[style*="--scroll-center: 1.0"] .kin-anim-word {
+     color: var(--c-text);
+}
+
+.kin-visual {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 24px;
+  padding: 3rem;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  
+  /* Slide slightly opposite to content */
+  transform: translateY(calc(var(--scroll-offset, 0) * -50px));
+}
+
+.kin-visual-inner {
+  position: relative;
+  z-index: 2;
+  color: var(--c-primary);
+  opacity: 0.8;
+  
+  /* Extreme scroll timeline rotation and pop */
+  opacity: var(--scroll-center, 0);
+  transform: scale(calc(0.5 + (var(--scroll-center, 0) * 0.5))) rotate(calc(var(--scroll-offset, 0) * -45deg));
+  transition: filter 0.3s ease; /* Keep hover interaction smooth */
+}
+
+.kin-visual:hover .kin-visual-inner {
+  filter: drop-shadow(0 0 20px var(--c-primary));
+}
+
+/* Subtle glow behind icons */
+.kin-visual::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 50%;
+  background: var(--c-primary);
+  filter: blur(80px);
+  transform: translate(-50%, -50%);
+  opacity: calc(var(--scroll-center, 0) * 0.3); /* Glow intensifies in center */
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+  40% { transform: translate(-50%, -20px); }
+  60% { transform: translate(-50%, -10px); }
+}
