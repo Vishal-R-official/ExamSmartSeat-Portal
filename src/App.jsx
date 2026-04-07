@@ -41,7 +41,8 @@ function App() {
     <ErrorBoundary>
       <AppProvider>
         <StudentProvider>
-          <Router>
+          <Router basename="/ExamSmartSeat-Portal">
+
             <Routes>
               {/* ── Student Public Routes ─────────────── */}
               <Route path="/" element={<StudentLanding />} />
