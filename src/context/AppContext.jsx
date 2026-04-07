@@ -44,6 +44,12 @@ export const AppProvider = ({ children }) => {
     // Auth state
     const [isAuthenticated, setIsAuthenticated] = useState(() => loadState('auth', false));
     const [currentUser, setCurrentUser] = useState(() => loadState('user', null));
+    const [theme, setTheme] = useState(() => {
+        try {
+            const savedTheme = localStorage.getItem('smartseat_theme');
+            return savedTheme || 'dark';
+        } catch { return 'dark'; }
+    });
 
     // Data state — load from localStorage, fallback to defaults
     const [halls, setHalls] = useState(() => loadState('halls', defaultHalls));
@@ -58,6 +64,16 @@ export const AppProvider = ({ children }) => {
     useEffect(() => { saveState('auth', isAuthenticated); }, [isAuthenticated]);
     useEffect(() => { saveState('user', currentUser); }, [currentUser]);
     useEffect(() => { saveState('backupHistory', backupHistory); }, [backupHistory]);
+    useEffect(() => { 
+        localStorage.setItem('smartseat_theme', theme);
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.classList.add('dark-theme');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            document.documentElement.classList.remove('dark-theme');
+        }
+    }, [theme]);
 
     // Computed stats — derived from real data, not hardcoded
     const stats = useMemo(() => {
@@ -102,6 +118,10 @@ export const AppProvider = ({ children }) => {
     const logout = useCallback(() => {
         setIsAuthenticated(false);
         setCurrentUser(null);
+    }, []);
+
+    const toggleTheme = useCallback(() => {
+        setTheme(prev => prev === 'light' ? 'dark' : 'light');
     }, []);
 
     // Student CRUD
@@ -186,8 +206,8 @@ export const AppProvider = ({ children }) => {
     }, []);
 
     const value = {
-        // Auth
-        isAuthenticated, currentUser, login, logout,
+        // Auth / Theme
+        isAuthenticated, currentUser, login, logout, theme, toggleTheme,
         // Data
         halls, setHalls, students, setStudents,
         seatingPlan, setSeatingPlan,

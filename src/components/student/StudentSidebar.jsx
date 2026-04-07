@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, FileText, Calendar, ClipboardList, Bell, BookOpen, User, HelpCircle, X, Shield } from 'lucide-react';
+import { LayoutDashboard, FileText, Calendar, ClipboardList, Bell, BookOpen, User, HelpCircle, X, Shield, Home } from 'lucide-react';
 import { StudentContext } from '../../context/StudentContext';
 
 const navItems = [
+  { path: '/', label: 'Portal Home', icon: Home },
   { path: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/student/exam-seating', label: 'Exam Seating', icon: FileText },
   { path: '/student/timetable', label: 'Timetable', icon: Calendar },
@@ -24,7 +25,7 @@ const StudentSidebar = ({ isOpen, onClose }) => {
         <div className="sp-sidebar-header">
           <div className="sp-sidebar-logo">S</div>
           <span className="sp-sidebar-brand">SmartSeat</span>
-          <button className="sp-sidebar-close" onClick={onClose}><X size={20} /></button>
+          <button className="sp-sidebar-close" onClick={onClose} aria-label="Close Sidebar"><X size={20} /></button>
         </div>
 
         <nav className="sp-sidebar-nav">

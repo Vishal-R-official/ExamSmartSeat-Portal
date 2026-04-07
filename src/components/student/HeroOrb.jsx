@@ -1,191 +1,170 @@
-import React, { useRef, useMemo, useContext } from 'react';
+import React, { useRef, useMemo, useContext, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, MeshDistortMaterial, Icosahedron, Sphere, Torus, Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { StudentContext } from '../../context/StudentContext';
 
-// ── Floating Constellation Orb (wireframe-only, never blocks text) ──
-const ConstellationOrb = ({ isDark }) => {
+const QuantumCore = ({ isDark, mouse }) => {
+  const meshRef = useRef();
+  const innerRef = useRef();
+  const ringRef1 = useRef();
+  const ringRef2 = useRef();
   const groupRef = useRef();
-  const ring1Ref = useRef();
-  const ring2Ref = useRef();
-  const ring3Ref = useRef();
-  const coreRef = useRef();
 
-  const primaryColor = isDark ? '#60a5fa' : '#3b82f6';
-  const accentColor  = isDark ? '#a78bfa' : '#8b5cf6';
-  const cyanColor    = isDark ? '#22d3ee' : '#06b6d4';
-
-  // Build geometries once
-  const { outerEdges, midEdges, innerEdges, octaEdges, coreGeo } = useMemo(() => {
-    const outerGeo = new THREE.IcosahedronGeometry(2.2, 1);
-    const midGeo   = new THREE.IcosahedronGeometry(1.7, 1);
-    const innerGeo = new THREE.OctahedronGeometry(1.2, 0);
-    const octaGeo  = new THREE.OctahedronGeometry(0.6, 0);
-    const sphereGeo= new THREE.SphereGeometry(0.18, 8, 8);
-    return {
-      outerEdges: new THREE.EdgesGeometry(outerGeo),
-      midEdges:   new THREE.EdgesGeometry(midGeo),
-      innerEdges: new THREE.EdgesGeometry(innerGeo),
-      octaEdges:  new THREE.EdgesGeometry(octaGeo),
-      coreGeo:    sphereGeo,
-    };
-  }, []);
+  const primaryColor = isDark ? '#38bdf8' : '#2563eb';
+  const accentColor  = isDark ? '#818cf8' : '#3b82f6';
 
   useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    const px = state.pointer.x;
-    const py = state.pointer.y;
+    const t = state.clock.getElapsedTime();
+    const mx = mouse.x;
+    const my = mouse.y;
 
-    // Smooth top-level mouse parallax
+    // Core rotations
+    if (meshRef.current) {
+      meshRef.current.rotation.y = t * 0.12;
+      meshRef.current.rotation.z = t * 0.05 + mx * 0.2;
+    }
+    if (innerRef.current) {
+      innerRef.current.rotation.y = -t * 0.18;
+      innerRef.current.rotation.x = t * 0.1 + my * 0.2;
+    }
+    
+    // Smooth group parallax (responding to cursor with better damping)
     if (groupRef.current) {
-      groupRef.current.rotation.y += (px * 0.4 - groupRef.current.rotation.y) * 0.04;
-      groupRef.current.rotation.x += (-py * 0.25 - groupRef.current.rotation.x) * 0.04;
+      const targetX = mx * 0.6;
+      const targetY = -my * 0.4;
+      groupRef.current.rotation.y += (targetX - groupRef.current.rotation.y) * 0.03;
+      groupRef.current.rotation.x += (targetY - groupRef.current.rotation.x) * 0.03;
     }
 
-    // Each ring spins on a different axis independently
-    if (ring1Ref.current) {
-      ring1Ref.current.rotation.y = t * 0.22;
-      ring1Ref.current.rotation.x = t * 0.09;
-    }
-    if (ring2Ref.current) {
-      ring2Ref.current.rotation.y = -t * 0.18;
-      ring2Ref.current.rotation.z =  t * 0.13;
-    }
-    if (ring3Ref.current) {
-      ring3Ref.current.rotation.x = t * 0.28;
-      ring3Ref.current.rotation.z = -t * 0.16;
-    }
-    // Core gentle pulse
-    if (coreRef.current) {
-      const s = 1 + Math.sin(t * 2.5) * 0.12;
-      coreRef.current.scale.setScalar(s);
-    }
+    if (ringRef1.current) ringRef1.current.rotation.z = t * 0.2;
+    if (ringRef2.current) ringRef2.current.rotation.z = -t * 0.15;
   });
 
   return (
     <group ref={groupRef}>
-      {/* Floating bob */}
-      <group position={[0, Math.sin(Date.now() * 0.001) * 0.1, 0]}>
+      {/* Outer Geometric Shell */}
+      <mesh ref={meshRef}>
+        <icosahedronGeometry args={[2.8, 1]} />
+        <meshBasicMaterial color={primaryColor} wireframe transparent opacity={isDark ? 0.22 : 0.15} />
+      </mesh>
+      
+      {/* Inner Energy Core */}
+      <mesh ref={innerRef}>
+        <sphereGeometry args={[1.5, 32, 32]} />
+        <MeshDistortMaterial
+          color={accentColor}
+          speed={2.2}
+          distort={0.4}
+          radius={1}
+          transparent
+          opacity={isDark ? 0.45 : 0.35}
+        />
+      </mesh>
 
-        {/* Outer icosahedron wireframe */}
-        <lineSegments ref={ring1Ref} geometry={outerEdges}>
-          <lineBasicMaterial color={primaryColor} transparent opacity={isDark ? 0.38 : 0.28} />
-        </lineSegments>
-
-        {/* Mid icosahedron wireframe */}
-        <lineSegments ref={ring2Ref} geometry={midEdges}>
-          <lineBasicMaterial color={cyanColor} transparent opacity={isDark ? 0.5 : 0.35} />
-        </lineSegments>
-
-        {/* Inner octahedron wireframe */}
-        <lineSegments ref={ring3Ref} geometry={innerEdges}>
-          <lineBasicMaterial color={accentColor} transparent opacity={isDark ? 0.65 : 0.45} />
-        </lineSegments>
-
-        {/* Tiny inner octahedron */}
-        <lineSegments geometry={octaEdges}>
-          <lineBasicMaterial color={primaryColor} transparent opacity={isDark ? 0.9 : 0.7} />
-        </lineSegments>
-
-        {/* Glowing data-core sphere */}
-        <mesh ref={coreRef} geometry={coreGeo}>
-          <meshStandardMaterial
-            color={accentColor}
-            emissive={accentColor}
-            emissiveIntensity={isDark ? 3.5 : 1.8}
-            roughness={0}
-            metalness={0}
-          />
-        </mesh>
+      {/* Orbiting Glass Rings */}
+      <group ref={ringRef1} rotation={[Math.PI / 3, 0, 0]}>
+        <Torus args={[3.5, 0.02, 16, 120]}>
+          <meshBasicMaterial color={primaryColor} transparent opacity={0.2} />
+        </Torus>
+      </group>
+      <group ref={ringRef2} rotation={[-Math.PI / 4, Math.PI / 4, 0]}>
+        <Torus args={[4.2, 0.015, 16, 120]}>
+          <meshBasicMaterial color={accentColor} transparent opacity={0.15} />
+        </Torus>
       </group>
     </group>
   );
 };
 
-// ── Animated particle dots orbiting the orb ──
-const OrbitParticles = ({ isDark }) => {
-  const ref = useRef();
-  const count = 80;
-
-  const { positions, colors } = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    const col = new Float32Array(count * 3);
-    const paletteDark  = [[0.37, 0.64, 0.98], [0.66, 0.55, 0.98], [0.13, 0.83, 0.93]];
-    const paletteLight = [[0.23, 0.51, 0.96], [0.55, 0.36, 0.96], [0.02, 0.71, 0.83]];
-    const palette = isDark ? paletteDark : paletteLight;
+const OrbitParticles = ({ isDark, mouse }) => {
+  const count = 1500;
+  const points = useMemo(() => {
+    const p = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const phi   = Math.acos(-1 + (2 * i) / count);
-      const theta = Math.sqrt(count * Math.PI) * phi;
-      const r = 2.6 + Math.random() * 0.8;
-      pos[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
-      const c = palette[i % palette.length];
-      col[i * 3] = c[0]; col[i * 3 + 1] = c[1]; col[i * 3 + 2] = c[2];
+      const r = 4.2 + Math.random() * 6.5;
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(2 * Math.random() - 1);
+      p[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      p[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      p[i * 3 + 2] = r * Math.cos(phi);
     }
-    return { positions: pos, colors: col };
-  }, [isDark]);
+    return p;
+  }, [count]);
 
+  const ref = useRef();
   useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y = state.clock.elapsedTime * 0.08;
-      ref.current.rotation.x = state.clock.elapsedTime * 0.04;
-    }
+    const t = state.clock.getElapsedTime();
+    const mx = mouse.x;
+    
+    // Dynamic interaction with particles
+    ref.current.rotation.y = t * 0.04 + mx * 0.1;
+    ref.current.rotation.x = t * 0.02 + Math.sin(t * 0.1) * 0.1;
   });
 
-  const geo = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    g.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
-    return g;
-  }, [positions, colors]);
-
   return (
-    <points ref={ref} geometry={geo}>
-      <pointsMaterial size={0.06} vertexColors transparent opacity={isDark ? 0.85 : 0.65} sizeAttenuation />
-    </points>
+    <Points ref={ref} positions={points} stride={3} frustumCulled={false}>
+      <PointMaterial
+        transparent
+        color={isDark ? "#38bdf8" : "#2563eb"}
+        size={0.5}
+        sizeAttenuation={true}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        opacity={isDark ? 0.55 : 0.35}
+      />
+    </Points>
   );
 };
 
-// ── Mouse camera follower ──
-const MouseTracker = () => {
-  useFrame((state) => {
-    const tx = state.pointer.x * 1.5;
-    const ty = state.pointer.y * 1.0;
-    state.camera.position.lerp({ x: tx, y: ty, z: 7 }, 0.04);
-    state.camera.lookAt(0, 0, 0);
-  });
-  return null;
-};
-
-// ── Exported HeroOrb wrapper ──
 const HeroOrb = () => {
   const { theme } = useContext(StudentContext);
   const isDark = theme === 'dark';
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-  const ambientIntensity = isDark ? 0.2 : 0.5;
-  const pointColor1 = isDark ? '#60a5fa' : '#3b82f6';
-  const pointColor2 = isDark ? '#a78bfa' : '#8b5cf6';
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      // Convert to normalized device coordinates (-1 to +1)
+      setMouse({
+        x: (event.clientX / window.innerWidth) * 2 - 1,
+        y: -(event.clientY / window.innerHeight) * 2 + 1
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
-      <Canvas
-        camera={{ position: [0, 0, 7], fov: 48 }}
-        eventSource={document.body}
-        eventPrefix="client"
-        gl={{ alpha: true }}
-        style={{ background: 'transparent' }}
+      <Canvas 
+        camera={{ position: [0, 0, 11], fov: 45 }} 
+        gl={{ alpha: true, antialias: true }}
+        dpr={[1, 2]}
       >
-        <ambientLight intensity={ambientIntensity} />
-        <pointLight position={[5, 5, 5]}   intensity={isDark ? 2 : 1} color={pointColor1} />
-        <pointLight position={[-5, -4, -3]} intensity={isDark ? 2 : 1} color={pointColor2} />
-
-        <ConstellationOrb isDark={isDark} />
-        <OrbitParticles   isDark={isDark} />
-        <MouseTracker />
+        <ambientLight intensity={isDark ? 0.4 : 0.7} />
+        <pointLight position={[10, 10, 10]} intensity={2.5} color={isDark ? "#38bdf8" : "#2563eb"} />
+        <pointLight position={[-10, -10, -10]} intensity={1.5} color={isDark ? "#818cf8" : "#3b82f6"} />
+        
+        <Float speed={2} rotationIntensity={0.6} floatIntensity={1.2}>
+          <QuantumCore isDark={isDark} mouse={mouse} />
+        </Float>
+        
+        <OrbitParticles isDark={isDark} mouse={mouse} />
       </Canvas>
+      
+      {/* Subtle depth mask to clean up edges */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: `radial-gradient(circle at 50% 50%, transparent 25%, ${isDark ? '#0f172a' : '#ffffff'} 95%)`,
+        opacity: isDark ? 0.5 : 0.3,
+        pointerEvents: 'none'
+      }} />
     </div>
   );
 };
 
 export default HeroOrb;
+
+
+

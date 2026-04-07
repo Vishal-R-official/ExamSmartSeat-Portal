@@ -82,3 +82,17 @@ export const mockFAQs = [
   { q: 'When are the exam timings?', a: 'Morning session: 9:30 AM - 12:30 PM. Afternoon session: 1:30 PM - 4:30 PM. Arrive 30 minutes early.' },
   { q: 'Who do I contact for assignment queries?', a: 'Reach out to your respective subject faculty or class advisor through the department office.' },
 ];
+
+export const mockCatMarks = [
+  { subject: 'Data Structures', code: 'CS23413', score: 42, total: 50, grade: 'A+' },
+  { subject: 'Operating Systems', code: 'CS23414', score: 38, total: 50, grade: 'A' },
+  { subject: 'Machine Learning', code: 'AD23412', score: 45, total: 50, grade: 'O' },
+  { subject: 'Mathematics III', code: 'MA23411', score: 35, total: 50, grade: 'B+' },
+];
+
+export const mockCycleMarks = [
+  { test: 'Cycle Test 1', average: 85, rank: 12, status: 'Completed' },
+  { test: 'Cycle Test 2', average: 78, rank: 24, status: 'In Progress' },
+  { test: 'Cycle Test 3', average: 0, rank: 0, status: 'Upcoming' },
+];
+

@@ -12,8 +12,10 @@ import './StaffPortal.css';
 const TABS = [
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'assignments',   label: 'Assignments',   icon: ClipboardList },
-  { id: 'marks',         label: 'Marks Entry',   icon: GraduationCap },
+  { id: 'cat_marks',     label: 'CAT Marks',     icon: Award },
+  { id: 'cycle_marks',   label: 'Cycle Test Marks', icon: GraduationCap },
 ];
+
 
 // ── Departments & Sections from context ─────────────────────────────
 const TARGET_OPTIONS = [
@@ -23,7 +25,9 @@ const TARGET_OPTIONS = [
   { value: 'register',   label: 'By Register Number' },
 ];
 
-const EXAM_TYPES = ['Cycle Test 1', 'Cycle Test 2', 'Cycle Test 3', 'CAT 1', 'CAT 2', 'CAT 3'];
+const CAT_EXAMS = ['CAT 1', 'CAT 2', 'CAT 3'];
+const CYCLE_EXAMS = ['Cycle Test 1', 'Cycle Test 2', 'Cycle Test 3'];
+
 
 // ── Notification Panel ────────────────────────────────────────────────
 const NotificationPanel = ({ students }) => {
@@ -330,19 +334,21 @@ const AssignmentPanel = ({ students }) => {
   );
 };
 
-// ── Marks Entry Panel ─────────────────────────────────────────────────
-const MarksPanel = ({ students }) => {
+// ── Marks Entry Panel (Refined for CAT/Cycle Test Sectors) ───────────
+const MarksPanel = ({ students, type = 'CAT' }) => {
   const depts   = useMemo(() => [...new Set(students.map(s => s.department))].sort(), [students]);
+  const examList = type === 'CAT' ? CAT_EXAMS : CYCLE_EXAMS;
+  
   const [filterDept, setFilterDept] = useState('');
   const [filterYear, setFilterYear] = useState('');
   const [search,     setSearch]     = useState('');
-  const [examType,   setExamType]   = useState('Cycle Test 1');
+  const [examType,   setExamType]   = useState(examList[0]);
   const [marks,      setMarks]      = useState({});
   const [saved,      setSaved]      = useState(false);
 
   const MAX_MARKS = {
+    'CAT 1': 50, 'CAT 2': 50, 'CAT 3': 50,
     'Cycle Test 1': 100, 'Cycle Test 2': 100, 'Cycle Test 3': 100,
-    'CAT 1': 50,         'CAT 2': 50,         'CAT 3': 50,
   };
 
   const filtered = useMemo(() => {
@@ -350,15 +356,15 @@ const MarksPanel = ({ students }) => {
       const matchDept = !filterDept || s.department === filterDept;
       const matchYear = !filterYear || String(s.year) === filterYear;
       const matchSrch = !search    || s.name?.toLowerCase().includes(search.toLowerCase())
-                                   || s.registerNumber?.toLowerCase().includes(search.toLowerCase());
+                                    || s.registerNumber?.toLowerCase().includes(search.toLowerCase());
       return matchDept && matchYear && matchSrch;
-    }).slice(0, 60);
+    }).slice(0, 80);
   }, [students, filterDept, filterYear, search]);
 
   const getMark = (regNo) => marks[`${regNo}_${examType}`] ?? '';
 
   const setMark = (regNo, val) => {
-    const max = MAX_MARKS[examType];
+    const max = MAX_MARKS[examType] || 100;
     const v = val === '' ? '' : Math.min(max, Math.max(0, Number(val)));
     setMarks(prev => ({ ...prev, [`${regNo}_${examType}`]: v }));
   };
@@ -375,13 +381,12 @@ const MarksPanel = ({ students }) => {
 
   return (
     <div className="sp-assign-page">
-      {/* Controls */}
       <div className="sp-card sp-assign-controls">
         <div className="sp-control-row">
           <div className="sp-form-group sp-control-item">
-            <label>Exam / Test</label>
+            <label>{type} Exam / Test</label>
             <select value={examType} onChange={e => setExamType(e.target.value)}>
-              {EXAM_TYPES.map(et => <option key={et} value={et}>{et} (/{MAX_MARKS[et]})</option>)}
+              {examList.map(et => <option key={et} value={et}>{et} (Max: {MAX_MARKS[et]})</option>)}
             </select>
           </div>
           <div className="sp-form-group sp-control-item">
@@ -399,7 +404,7 @@ const MarksPanel = ({ students }) => {
             </select>
           </div>
           <div className="sp-form-group sp-control-item sp-search-wrap">
-            <label>Search</label>
+            <label>Quick Search</label>
             <div className="sp-search-box">
               <Search size={14} />
               <input placeholder="Name or Reg No." value={search} onChange={e => setSearch(e.target.value)} />
@@ -408,45 +413,39 @@ const MarksPanel = ({ students }) => {
         </div>
 
         <div className="sp-marks-stats">
-          <span className="sp-stat-pill sp-stat-blue"><Award size={13} /> {entered} / {filtered.length} Entered</span>
-          <span className="sp-stat-pill sp-stat-grey">Avg: <strong>{avg}</strong></span>
-          <span className="sp-stat-pill sp-stat-grey">Max: <strong>{MAX_MARKS[examType]}</strong></span>
+          <span className="sp-stat-pill sp-stat-blue"><Award size={13} /> {entered} / {filtered.length} Recorded</span>
+          <span className="sp-stat-pill sp-stat-grey">Class Avg: <strong>{avg}</strong></span>
+          <span className="sp-stat-pill sp-stat-grey">Max Score: <strong>{MAX_MARKS[examType]}</strong></span>
         </div>
 
         <div className="sp-save-row">
-          {saved && <span className="sp-save-ok"><CheckCircle size={14} /> Marks saved!</span>}
+          {saved && <span className="sp-save-ok"><CheckCircle size={14} /> Recorded successfully</span>}
           <button className="btn-primary sp-save-btn" onClick={handleSave}>
-            <Save size={15} /> Save All Marks
+            <Save size={15} /> Commit Marks
           </button>
         </div>
       </div>
 
-      {/* Table */}
       <div className="sp-card sp-table-card">
         <div className="sp-table-wrap">
           <table className="sp-table">
             <thead>
               <tr>
-                <th>Reg Number</th>
+                <th>Reg #</th>
                 <th>Name</th>
-                <th>Department</th>
+                <th>Dept</th>
                 <th>Year</th>
-                <th>{examType} <span className="sp-max-tag">/{MAX_MARKS[examType]}</span></th>
-                <th>Grade</th>
+                <th>Score (/{MAX_MARKS[examType]})</th>
+                <th>Performance</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(s => {
                 const m   = getMark(s.registerNumber);
-                const max = MAX_MARKS[examType];
+                const max = MAX_MARKS[examType] || 100;
                 const pct = m !== '' ? Math.round((Number(m) / max) * 100) : null;
                 const grade = pct === null ? '—'
-                  : pct >= 90 ? 'O'
-                  : pct >= 80 ? 'A+'
-                  : pct >= 70 ? 'A'
-                  : pct >= 60 ? 'B+'
-                  : pct >= 50 ? 'B'
-                  : 'F';
+                  : pct >= 90 ? 'O' : pct >= 80 ? 'A+' : pct >= 70 ? 'A' : pct >= 60 ? 'B+' : pct >= 50 ? 'B' : 'F';
                 const gradeClass = pct === null ? '' : pct < 50 ? 'grade-f' : pct >= 80 ? 'grade-a' : 'grade-b';
 
                 return (
@@ -461,7 +460,6 @@ const MarksPanel = ({ students }) => {
                           type="number"
                           min="0"
                           max={max}
-                          placeholder="—"
                           value={m}
                           onChange={e => setMark(s.registerNumber, e.target.value)}
                           className="sp-mark-input"
@@ -470,7 +468,7 @@ const MarksPanel = ({ students }) => {
                           <div className="sp-mark-bar">
                             <div className="sp-mark-fill" style={{
                               width: `${pct}%`,
-                              background: pct < 50 ? '#ef4444' : pct >= 80 ? '#10b981' : '#f59e0b'
+                              background: pct < 50 ? 'var(--status-danger)' : pct >= 80 ? 'var(--status-success)' : 'var(--status-warning)'
                             }} />
                           </div>
                         )}
@@ -530,8 +528,10 @@ const StaffPortal = () => {
       <div className="sp-tab-content">
         {activeTab === 'notifications' && <NotificationPanel students={students} />}
         {activeTab === 'assignments'   && <AssignmentPanel   students={students} />}
-        {activeTab === 'marks'         && <MarksPanel        students={students} />}
+        {activeTab === 'cat_marks'     && <MarksPanel        students={students} type="CAT" />}
+        {activeTab === 'cycle_marks'   && <MarksPanel        students={students} type="Cycle" />}
       </div>
+
     </div>
   );
 };

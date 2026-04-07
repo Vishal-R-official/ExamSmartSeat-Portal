@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Search, LayoutDashboard, MapPin, Calendar, BookOpen, Shield, Users, Building, Award, Sun, Moon } from 'lucide-react';
 import { StudentContext } from '../../context/StudentContext';
 import HeroOrb from '../../components/student/HeroOrb';
@@ -15,7 +15,7 @@ const features = [
 
 const StudentLanding = () => {
   const { isStudentAuth, stats, theme, toggleTheme } = useContext(StudentContext);
-  const navigate = useNavigate();
+
 
   return (
     <div className="student-app" style={{ overflowX: 'hidden' }}>
@@ -128,11 +128,11 @@ const StudentLanding = () => {
 
       {/* Footer */}
       <footer style={{
-        padding: '2rem', textAlign: 'center', background: '#1e293b', color: '#94a3b8',
-        fontFamily: 'var(--sp-font)', fontSize: '0.85rem'
+        padding: '3rem 2rem', textAlign: 'center', background: 'var(--bg-dark, #0f172a)', color: 'var(--text-muted)',
+        fontFamily: 'var(--sp-font)', fontSize: '0.85rem', borderTop: '1px solid var(--border-color)'
       }}>
-        <div style={{ marginBottom: '0.5rem' }}>
-          <Link to="/login" style={{ color: '#60a5fa', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <Link to="/login" style={{ color: 'var(--accent-primary)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
             <Shield size={14} /> Admin Portal
           </Link>
         </div>

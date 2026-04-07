@@ -32,11 +32,13 @@ export const StudentProvider = ({ children }) => {
     });
   }, []);
 
-  // Sync theme with body class for global effects if needed
+  // Sync theme for global effects
   React.useEffect(() => {
     if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
       document.documentElement.classList.add('dark-theme');
     } else {
+      document.documentElement.removeAttribute('data-theme');
       document.documentElement.classList.remove('dark-theme');
     }
   }, [theme]);

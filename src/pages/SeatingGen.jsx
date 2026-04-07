@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import { generateSeatingPlan } from '../utils/seatingAlgorithm';
-import { Settings, CheckCircle2, Zap, AlertCircle } from 'lucide-react';
+import { Settings, CheckCircle2, Zap, AlertCircle, RefreshCw, Eye, ArrowRight, XCircle } from 'lucide-react';
 import './SeatingGen.css';
 
 const SeatingGen = () => {
@@ -18,11 +18,14 @@ const SeatingGen = () => {
         subjects: availableSubjects, // Default all selected
         studentsPerTable: 2,
         antiCheatingMode: true,
-        autoSelectHalls: true
+        autoSelectHalls: true,
+        seedModifier: ''
     });
 
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState(null);
+    const [generatedPlan, setGeneratedPlan] = useState(null);
+    const [showViolations, setShowViolations] = useState(false);
 
     const handleSubjectToggle = (sub) => {
         if (config.subjects.includes(sub)) {
@@ -35,8 +38,8 @@ const SeatingGen = () => {
     const handleGenerate = () => {
         setIsGenerating(true);
         setError(null);
+        setGeneratedPlan(null);
 
-        // Simulate small processing delay for UX
         setTimeout(() => {
             const result = generateSeatingPlan(config, students, halls);
 
@@ -44,11 +47,30 @@ const SeatingGen = () => {
                 setError(result.error);
                 setIsGenerating(false);
             } else {
-                setSeatingPlan(result.plan);
+                setGeneratedPlan(result.plan);
+                setSeatingPlan(result.plan); // Store globally as well
                 setIsGenerating(false);
-                navigate('/admin/interactive-map'); // Redirect to map view immediately
             }
-        }, 1500);
+        }, 800);
+    };
+
+    const handleImprove = () => {
+        const newModifier = Date.now().toString();
+        setConfig((prev) => ({ ...prev, seedModifier: newModifier }));
+        // Actually we need to run it with the new modifier immediately
+        setIsGenerating(true);
+        setTimeout(() => {
+            const result = generateSeatingPlan({ ...config, seedModifier: newModifier }, students, halls);
+            if (!result.error) {
+                setGeneratedPlan(result.plan);
+                setSeatingPlan(result.plan);
+            }
+            setIsGenerating(false);
+        }, 800);
+    };
+
+    const proceedToMap = () => {
+        navigate('/admin/interactive-map');
     };
 
     return (
@@ -179,23 +201,74 @@ const SeatingGen = () => {
                     </div>
                 </div>
 
-                <div className="info-panel animate-slide-up delay-100">
-                    <div className="glass-panel p-6 h-full flex flex-col justify-center text-center">
-                        <div className="hero-icon-container mx-auto mb-4">
-                            <Zap size={48} className="text-accent-primary" />
+                {generatedPlan ? (
+                    <div className="feedback-panel glass-panel animate-slide-up delay-100 p-6 flex flex-col justify-center">
+                        <div className="panel-header mb-4">
+                            <Zap className="text-status-success" size={24} />
+                            <h3 className="text-xl font-bold text-gradient">Optimization Feedback Details</h3>
                         </div>
-                        <h3 className="text-xl font-bold mb-2 text-gradient">How it Works</h3>
-                        <p className="text-text-secondary mb-4 text-sm">
-                            Our advanced seating engine calculates the minimum number of halls required,
-                            distributes students to prevent consecutive subjects, and optimizes table space.
-                        </p>
-                        <ul className="text-left text-sm text-text-secondary flex flex-col gap-3">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-status-success" /> Capacity analyzed instantly</li>
-                            <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-status-success" /> Multi-subject interleaving</li>
-                            <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-status-success" /> AI Cheat-risk validation</li>
-                        </ul>
+                        
+                        <div className="feedback-stats grid gap-4 mb-6">
+                            <div className="stat-card p-4 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)]">
+                                <span className="text-sm text-text-secondary block">Total Students Allocated</span>
+                                <strong className="text-2xl text-accent-primary">{generatedPlan.totalStudentsAssigned}</strong>
+                            </div>
+                            <div className="stat-card p-4 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)]">
+                                <span className="text-sm text-text-secondary block">Violations Count</span>
+                                <strong className={`text-2xl ${generatedPlan.algorithmMetadata.totalViolations > 0 ? 'text-status-danger' : 'text-status-success'}`}>
+                                    {generatedPlan.algorithmMetadata.totalViolations}
+                                </strong>
+                            </div>
+                            <div className="stat-card p-4 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)]">
+                                <span className="text-sm text-text-secondary block">Constraints Applied</span>
+                                <strong className="text-lg text-text-primary">Anti-Cheating, Hall Cap</strong>
+                            </div>
+                        </div>
+
+                        {showViolations && generatedPlan.algorithmMetadata.totalViolations > 0 && (
+                            <div className="violations-list mb-6 p-4 rounded-lg bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] text-left text-sm">
+                                <h4 className="font-bold text-status-danger flex items-center gap-2 mb-2"><XCircle size={16}/> Warning: Unavoidable Conflicts</h4>
+                                <ul className="list-disc pl-5 text-text-secondary">
+                                    <li>Same subject adjacency: The algorithm was forced to place some students with identical subjects near each other due to dense ratios.</li>
+                                    <li>Tip: Reduce the number of students taking the same exam per hall to 0.</li>
+                                </ul>
+                            </div>
+                        )}
+
+                        <div className="action-buttons flex gap-3 flex-wrap">
+                            <button className="btn-secondary flex-1" onClick={() => setShowViolations(!showViolations)}>
+                                <Eye size={18} />
+                                {showViolations ? 'Hide Violations' : 'View Violations'}
+                            </button>
+                            <button className="btn-warning flex-1" onClick={handleImprove} disabled={isGenerating}>
+                                <RefreshCw size={18} className={isGenerating ? "spin" : ""} />
+                                Improve Allocation
+                            </button>
+                            <button className="btn-primary w-full mt-2 justify-center" onClick={proceedToMap}>
+                                Proceed to Map View
+                                <ArrowRight size={18} />
+                            </button>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="info-panel animate-slide-up delay-100">
+                        <div className="glass-panel p-6 h-full flex flex-col justify-center text-center">
+                            <div className="hero-icon-container mx-auto mb-4">
+                                <Zap size={48} className="text-accent-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2 text-gradient">How it Works</h3>
+                            <p className="text-text-secondary mb-4 text-sm">
+                                Our advanced seating engine calculates the minimum number of halls required,
+                                distributes students to prevent consecutive subjects, and optimizes table space.
+                            </p>
+                            <ul className="text-left text-sm text-text-secondary flex flex-col gap-3">
+                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-status-success" /> Capacity analyzed instantly</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-status-success" /> Multi-subject interleaving</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-status-success" /> AI Cheat-risk validation</li>
+                            </ul>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

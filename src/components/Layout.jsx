@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
 import Sidebar from './Sidebar';
+import { AppContext } from '../context/AppContext';
 import './Layout.css';
 
 const Layout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const { theme, toggleTheme } = useContext(AppContext);
 
     return (
         <div className="app-layout">
@@ -23,6 +25,9 @@ const Layout = () => {
                         </div>
                     </div>
                     <div className="header-right">
+                        <button className="icon-btn" onClick={toggleTheme} aria-label="Toggle Theme" title="Toggle Theme">
+                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
                         <div className="status-badge available" aria-label="System status">
                             <span className="dot" aria-hidden="true"></span>
                             System Active

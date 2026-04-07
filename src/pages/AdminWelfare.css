@@ -15,6 +15,11 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
 }
 
 .panel-header {
@@ -38,7 +43,7 @@
 .list-header {
     display: flex;
     padding: 0.75rem 1rem;
-    background: var(--surface-color);
+    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     font-weight: 600;
     font-size: 0.85rem;
@@ -60,11 +65,12 @@
 }
 
 .list-row:hover {
-    background: rgba(var(--accent-primary-rgb), 0.05);
+    background: var(--accent-glow);
 }
 
 .list-row.selected {
-    background: rgba(var(--accent-primary-rgb), 0.1);
+    background: var(--accent-glow);
+    border-left: 2px solid var(--accent-primary);
 }
 
 .col-checkbox {
@@ -97,17 +103,17 @@
 }
 
 .status-pill.success {
-    background: rgba(var(--status-success-rgb), 0.15);
+    background: var(--status-success-glow);
     color: var(--status-success);
 }
 
 .status-pill.warning {
-    background: rgba(var(--status-warning-rgb), 0.15);
+    background: rgba(245, 158, 11, 0.15);
     color: var(--status-warning);
 }
 
 .status-pill.danger {
-    background: rgba(var(--status-danger-rgb), 0.15);
+    background: var(--status-danger-glow);
     color: var(--status-danger);
 }
 
@@ -135,7 +141,7 @@
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--border-color);
-    background: var(--bg-color);
+    background: var(--bg-tertiary);
     color: var(--text-primary);
     font-family: inherit;
     font-size: 0.95rem;
@@ -147,7 +153,7 @@
 .form-group textarea:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.2);
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
 .small-btn {

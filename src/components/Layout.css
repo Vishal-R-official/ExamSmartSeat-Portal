@@ -1,7 +1,9 @@
 .app-layout {
     display: flex;
     min-height: 100vh;
-    background: var(--bg-primary);
+    background: var(--layout-bg-gradient);
+    background-attachment: fixed;
+    transition: background var(--transition-normal), color var(--transition-normal);
 }
 
 .main-content {
@@ -18,9 +20,16 @@
     justify-content: space-between;
     padding: 0.8rem 2rem;
     border-radius: 0;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-glass);
     min-height: var(--header-height);
     flex-shrink: 0;
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: background var(--transition-normal), border-color var(--transition-normal);
 }
 
 .header-left {

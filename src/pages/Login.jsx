@@ -1,49 +1,41 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User, LogIn, Settings2, AlertCircle, Shield, Users, ArrowLeft, Mail } from 'lucide-react';
+import { Lock, User, LogIn, AlertCircle, Shield, Users, ArrowLeft, Mail } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import './Login.css';
 
 const Login = () => {
-    const [step, setStep] = useState('role'); // 'role' | 'form'
-    const [role, setRole] = useState('admin'); // 'admin' | 'staff'
-
+    const [step, setStep] = useState('role_selection'); // role_selection, provider_login
+    const [selectedRole, setSelectedRole] = useState(null); // admin, staff
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    
-    // For staff, we only need email
-    const [email, setEmail] = useState('');
-
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    
     const navigate = useNavigate();
     const { login, isAuthenticated, currentUser } = useContext(AppContext);
 
     // Redirect if already logged in
     useEffect(() => {
         if (isAuthenticated && currentUser) {
-            if (currentUser.role === 'staff') {
-                navigate('/admin/staff-portal', { replace: true });
-            } else {
-                navigate('/admin/dashboard', { replace: true });
-            }
+            navigate('/admin/dashboard', { replace: true });
         }
     }, [isAuthenticated, currentUser, navigate]);
 
     if (isAuthenticated) return null;
 
-    const handleRoleSelect = (selectedRole) => {
-        setRole(selectedRole);
-        setError('');
-        setStep('form');
-    };
-
-    const handleBack = () => {
-        setStep('role');
+    const handleRoleSelect = (role) => {
+        setSelectedRole(role);
+        setStep('provider_login');
         setError('');
         setUsername('');
         setPassword('');
-        setEmail('');
+    };
+
+    const handleBack = () => {
+        setStep('role_selection');
+        setSelectedRole(null);
+        setError('');
     };
 
     const handleLogin = (e) => {
@@ -52,21 +44,11 @@ const Login = () => {
         setError('');
 
         setTimeout(() => {
-            let result;
-            if (role === 'admin') {
-                result = login(username, password, 'admin');
-            } else {
-                result = login(email, '', 'staff');
-            }
-            
+            const result = login(username, password, selectedRole);
             setIsLoading(false);
 
             if (result.success) {
-                if (role === 'staff') {
-                    navigate('/admin/staff-portal');
-                } else {
-                    navigate('/admin/dashboard');
-                }
+                navigate('/admin/dashboard');
             } else {
                 setError(result.error);
             }
@@ -82,71 +64,68 @@ const Login = () => {
             
             <div className="login-grid-overlay"></div>
 
-            <div className="login-content-wrapper">
-                {step === 'role' ? (
-                    <div className="role-selection-view animate-fade-in">
-                        <div className="login-header-large">
-                            <div className="logo-pulse">
-                                <Settings2 size={48} className="text-accent-primary" />
+            <div className="login-content-wrapper animate-slide-up">
+                {step === 'role_selection' ? (
+                    <div className="login-card glass-panel">
+                        <div className="login-header">
+                            <div className="login-logo text-accent-primary mb-4" style={{display:'flex', justifyContent:'center'}}>
+                                <Shield size={48} />
                             </div>
-                            <h1 className="login-title-large text-gradient">SmartSeat Portal</h1>
-                            <p className="login-subtitle">Please select your access tier to continue.</p>
+                            <h1 className="login-title text-gradient">SmartSeat Portal</h1>
+                            <p className="login-subtitle">Identify your access clearance</p>
                         </div>
-
-                        <div className="role-cards-container">
+                        
+                        <div className="role-selection-grid mt-6">
                             <button 
-                                className="role-card admin-card glass-panel"
+                                className="role-btn admin-role glass-panel p-6"
                                 onClick={() => handleRoleSelect('admin')}
-                                aria-label="Admin Access"
                             >
-                                <div className="role-icon-wrapper admin-icon">
-                                    <Shield size={36} />
+                                <div className="role-icon admin-theme">
+                                    <Shield size={28} />
                                 </div>
-                                <h2>Admin Access</h2>
-                                <p>Exam cell operations, seating generation, and master controls.</p>
+                                <h3 className="text-xl font-bold mt-3">Admin Access</h3>
+                                <p className="text-sm text-text-muted mt-2">Full system control and seating map orchestration</p>
                             </button>
 
                             <button 
-                                className="role-card staff-card glass-panel"
+                                className="role-btn staff-role glass-panel p-6"
                                 onClick={() => handleRoleSelect('staff')}
-                                aria-label="Staff Access"
                             >
-                                <div className="role-icon-wrapper staff-icon">
-                                    <Users size={36} />
+                                <div className="role-icon staff-theme text-subj-purple" style={{background: 'rgba(139, 92, 246, 0.1)'}}>
+                                    <Users size={28} />
                                 </div>
-                                <h2>Staff Access</h2>
-                                <p>Student welfare, marks entry, and assignment tracking.</p>
+                                <h3 className="text-xl font-bold mt-3">Staff Access</h3>
+                                <p className="text-sm text-text-muted mt-2">Manage markings, cycle tests, and student records</p>
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <div className="login-card glass-panel animate-slide-up">
-                        <button className="back-button" onClick={handleBack} aria-label="Back to role selection">
-                            <ArrowLeft size={20} />
-                            <span>Back</span>
+                    <div className="login-card glass-panel animate-fade-in">
+                        <button className="back-btn" onClick={handleBack}>
+                            <ArrowLeft size={18} /> Back
                         </button>
                         
-                        <div className="login-header">
-                            <div className={`login-logo ${role === 'admin' ? 'admin-theme' : 'staff-theme'}`}>
-                                {role === 'admin' ? <Shield size={32} /> : <Users size={32} />}
+                        <div className="login-header mt-4">
+                            <div className={`login-logo ${selectedRole === 'admin' ? 'admin-theme' : 'staff-theme'}`}>
+                                {selectedRole === 'admin' ? <Shield size={32} /> : <Users size={32} />}
                             </div>
-                            <h2 className="login-title text-gradient">
-                                {role === 'admin' ? 'Admin Login' : 'Staff Login'}
-                            </h2>
+                            <h1 className="login-title text-gradient">
+                                {selectedRole === 'admin' ? 'Admin Gateway' : 'Staff Gateway'}
+                            </h1>
                             <p className="login-subtitle">
-                                {role === 'admin' ? 'Access the master control panel' : 'Access the staff management portal'}
+                                {selectedRole === 'admin' ? 'Secure Master Control Panel' : 'Academic Record Management'}
                             </p>
                         </div>
 
                         {error && (
-                            <div className="login-error" role="alert" aria-live="polite">
+                            <div className="login-error" role="alert">
                                 <AlertCircle size={16} />
                                 <span>{error}</span>
                             </div>
                         )}
 
                         <form className="login-form" onSubmit={handleLogin}>
-                            {role === 'admin' ? (
+                            {selectedRole === 'admin' ? (
                                 <>
                                     <div className="input-group">
                                         <div className="input-icon">
@@ -158,11 +137,9 @@ const Login = () => {
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                             required
-                                            aria-label="Username"
                                             autoComplete="username"
                                         />
                                     </div>
-
                                     <div className="input-group">
                                         <div className="input-icon">
                                             <Lock size={20} />
@@ -173,47 +150,49 @@ const Login = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
-                                            aria-label="Password"
                                             autoComplete="current-password"
                                         />
                                     </div>
                                 </>
                             ) : (
-                                <>
-                                    <div className="input-group">
-                                        <div className="input-icon">
-                                            <Mail size={20} />
-                                        </div>
-                                        <input
-                                            type="email"
-                                            placeholder="Staff Email (@staff.ritchennai.edu.in)"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                            aria-label="Staff Email"
-                                            autoComplete="email"
-                                        />
+                                <div className="input-group">
+                                    <div className="input-icon">
+                                        <Mail size={20} />
                                     </div>
-                                </>
+                                    <input
+                                        type="email"
+                                        placeholder="Institutional Email (@staff.ritchennai.edu.in)"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        required
+                                        autoComplete="email"
+                                    />
+                                </div>
                             )}
 
-                            <button type="submit" className={`login-btn ${role === 'admin' ? 'btn-primary' : 'btn-staff'}`} disabled={isLoading}>
+                            <button 
+                                type="submit" 
+                                className={`login-btn ${selectedRole === 'admin' ? 'btn-primary' : 'btn-purple'}`} 
+                                disabled={isLoading}
+                                style={selectedRole === 'staff' ? { background: 'linear-gradient(135deg, var(--subj-purple), #6d28d9)', color: 'white', border: 'none', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', width: '100%', marginTop: '1rem' } : {}}
+                            >
                                 {isLoading ? (
                                     <span className="loading-spinner"></span>
                                 ) : (
                                     <>
                                         <LogIn size={20} />
-                                        Access Portal
+                                        {selectedRole === 'admin' ? 'Authenticate' : 'Verify Email Address'}
                                     </>
                                 )}
                             </button>
                         </form>
 
                         <div className="login-footer">
-                            {role === 'admin' ? (
-                                <p>Default credentials: <strong>admin</strong> / <strong>1234</strong></p>
+                            <p>Authorized personnel only.</p>
+                            {selectedRole === 'admin' ? (
+                                <p>Default: <strong>admin</strong> / <strong>1234</strong></p>
                             ) : (
-                                <p>Email must end with <strong>@staff.ritchennai.edu.in</strong></p>
+                                <p>Example: <strong>demo@staff.ritchennai.edu.in</strong></p>
                             )}
                         </div>
                     </div>

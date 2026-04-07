@@ -17,6 +17,9 @@ import Monitoring from './pages/Monitoring';
 import StudentPortal from './pages/StudentPortal';
 import AdminWelfare from './pages/AdminWelfare';
 import StaffPortal from './pages/StaffPortal';
+import CatMarksUpdate from './pages/CatMarksUpdate';
+import CycleTestMarksUpdate from './pages/CycleTestMarksUpdate';
+import AssignmentManagement from './pages/AssignmentManagement';
 import Backup from './pages/Backup';
 
 // Student pages
@@ -73,6 +76,9 @@ function App() {
                 <Route path="interactive-map" element={<MapView />} />
                 <Route path="student-welfare" element={<AdminWelfare />} />
                 <Route path="staff-portal" element={<StaffPortal />} />
+                <Route path="cat-marks" element={<CatMarksUpdate />} />
+                <Route path="cycle-test-marks" element={<CycleTestMarksUpdate />} />
+                <Route path="assignments" element={<AssignmentManagement />} />
                 <Route path="monitoring" element={<Monitoring />} />
                 <Route path="student-portal" element={<StudentPortal />} />
                 <Route path="backup" element={<Backup />} />

@@ -22,8 +22,8 @@ const createPRNG = (seed) => {
 };
 
 // Generate a seed from date+session string for reproducibility
-const generateSeed = (dateStr, session) => {
-    const str = `${dateStr}_${session}`;
+const generateSeed = (dateStr, session, modifier = '') => {
+    const str = `${dateStr}_${session}_${modifier}`;
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
@@ -180,7 +180,7 @@ const interleaveBySubject = (students, rng) => {
 
 // ── Main Seating Plan Generator ──────────────────────────────────────
 export const generateSeatingPlan = (config, students, availableHalls) => {
-    const { date, session, subjects, studentsPerTable = 2, antiCheatingMode = true, autoSelectHalls = true } = config;
+    const { date, session, subjects, studentsPerTable = 2, antiCheatingMode = true, autoSelectHalls = true, seedModifier = '' } = config;
 
     // Filter students by selected subjects
     const examStudents = students.filter(s => subjects.includes(s.subjectCode));
@@ -220,7 +220,7 @@ export const generateSeatingPlan = (config, students, availableHalls) => {
     }
 
     // ── Seeded Randomization ───────────────────────────────────────
-    const seed = generateSeed(date, session);
+    const seed = generateSeed(date, session, seedModifier);
     const rng = createPRNG(seed);
 
     // ── Subject-Interleaved Student Order ──────────────────────────
