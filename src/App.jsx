@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import { AppProvider } from './context/AppContext';
 import { StudentProvider } from './context/StudentContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -41,7 +42,8 @@ function App() {
     <ErrorBoundary>
       <AppProvider>
         <StudentProvider>
-          <Router basename="/ExamSmartSeat-Portal">
+          <Router>
+
 
             <Routes>
               {/* ── Student Public Routes ─────────────── */}
